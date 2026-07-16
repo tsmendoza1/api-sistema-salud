@@ -1,0 +1,12 @@
+# Despliegue en Render usando Docker.
+# En Render: New + > Blueprint (detecta este archivo) o Web Service > Docker.
+services:
+  - type: web
+    name: api-sistema-salud
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 3000
