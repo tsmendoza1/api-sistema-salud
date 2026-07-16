@@ -121,7 +121,22 @@ function simularVital() {
 }
 
 function iniciar(server) {
-  wss = new WebSocketServer({ server, path: '/ws' });
+  // noServer + manejo manual del upgrade: mas compatible detras de proxies
+  // (Render, etc.) que el filtro por 'path' de WebSocketServer.
+  wss = new WebSocketServer({ noServer: true });
+
+  server.on('upgrade', (req, socket, head) => {
+    let pathname = '/';
+    try {
+      pathname = new URL(req.url, 'http://localhost').pathname;
+    } catch (_) {}
+    // Aceptar /ws y /ws/ (y la raiz, por si el proxy reescribe la ruta).
+    if (pathname === '/ws' || pathname === '/ws/' || pathname === '/') {
+      wss.handleUpgrade(req, socket, head, (ws) => wss.emit('connection', ws, req));
+    } else {
+      socket.destroy();
+    }
+  });
 
   wss.on('connection', (ws) => {
     console.log('WS: cliente conectado');

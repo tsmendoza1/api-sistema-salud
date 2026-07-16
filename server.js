@@ -173,6 +173,11 @@ app.get('/api/resumen', (_req, res) => {
   });
 });
 
+// Cargar datos de ejemplo si la "base" esta vacia (util en Render, disco efimero).
+if (db.listarPacientes().length === 0) {
+  require('./seed');
+}
+
 const server = app.listen(PORT, () => {
   console.log(`SaludMonitor API escuchando en http://localhost:${PORT}`);
 });
