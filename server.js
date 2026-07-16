@@ -24,7 +24,13 @@ const almacenamiento = multer.diskStorage({
 const upload = multer({
   storage: almacenamiento,
   limits: { fileSize: 8 * 1024 * 1024 }, // 8 MB
-  fileFilter: (_req, file, cb) => cb(null, file.mimetype.startsWith('image/')),
+  fileFilter: (_req, file, cb) => {
+    // Aceptar por mimetype de imagen O por extension (algunos clientes envian
+    // application/octet-stream aunque sea una imagen valida).
+    const okMime = (file.mimetype || '').startsWith('image/');
+    const okExt = /\.(jpe?g|png|webp|gif|bmp|heic)$/i.test(file.originalname || '');
+    cb(null, okMime || okExt);
+  },
 });
 
 app.use(cors());
